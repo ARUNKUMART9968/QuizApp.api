@@ -1,0 +1,8 @@
+D:\dot\QuizApp.Api\QuizApp.Api\obj\Debug\net8.0\QuizApp.Api.csproj.AssemblyReference.cache
+D:\dot\QuizApp.Api\QuizApp.Api\obj\Debug\net8.0\rpswa.dswa.cache.json
+D:\dot\QuizApp.Api\QuizApp.Api\obj\Debug\net8.0\QuizApp.Api.GeneratedMSBuildEditorConfig.editorconfig
+D:\dot\QuizApp.Api\QuizApp.Api\obj\Debug\net8.0\QuizApp.Api.AssemblyInfoInputs.cache
+D:\dot\QuizApp.Api\QuizApp.Api\obj\Debug\net8.0\QuizApp.Api.AssemblyInfo.cs
+D:\dot\QuizApp.Api\QuizApp.Api\obj\Debug\net8.0\QuizApp.Api.csproj.CoreCompileInputs.cache
+D:\dot\QuizApp.Api\QuizApp.Api\obj\Debug\net8.0\QuizApp.Api.MvcApplicationPartsAssemblyInfo.cs
+D:\dot\QuizApp.Api\QuizApp.Api\obj\Debug\net8.0\QuizApp.Api.MvcApplicationPartsAssemblyInfo.cache
