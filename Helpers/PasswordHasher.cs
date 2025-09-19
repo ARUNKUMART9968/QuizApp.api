@@ -1,5 +1,4 @@
 ﻿using BCrypt.Net;
-using System.Diagnostics.Eventing.Reader;
 
 namespace QuizApp.Api.Helpers
 {
@@ -7,14 +6,14 @@ namespace QuizApp.Api.Helpers
     {
         public static string HashPassword(string password)
         {
-            return BCrypt.EnhancedHashPassword(password, HashType.SHA384);
+            return BCrypt.Net.BCrypt.HashPassword(password);
         }
 
         public static bool VerifyPassword(string password, string hash)
         {
             try
             {
-                return BCrypt.EnhancedVerify(password, hash, HashType.SHA384);
+                return BCrypt.Net.BCrypt.Verify(password, hash);
             }
             catch
             {

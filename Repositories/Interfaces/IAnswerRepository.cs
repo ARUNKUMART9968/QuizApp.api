@@ -1,6 +1,6 @@
 ﻿using QuizApp.Api.Models;
 
-namespace QuizApp.Api.Repositories
+namespace QuizApp.Api.Repositories.Interfaces
 {
     public interface IAnswerRepository
     {

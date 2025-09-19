@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QuizApp.Api.Data;
 using QuizApp.Api.Models;
+using QuizApp.Api.Repositories.Interfaces;
 
 namespace QuizApp.Api.Repositories.Implementations
 {

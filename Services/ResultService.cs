@@ -3,6 +3,7 @@ using QuizApp.Api.DTOs;
 using QuizApp.Api.Models;
 using QuizApp.Api.Repositories;
 using System.Text.Json;
+using QuizApp.Api.Repositories.Interfaces;
 
 namespace QuizApp.Api.Services
 {

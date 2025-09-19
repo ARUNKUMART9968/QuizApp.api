@@ -1,11 +1,11 @@
 ﻿using QuizApp.Api.Models;
 
-namespace QuizApp.Api.Repositories
+namespace QuizApp.Api.Repositories.Interfaces
 {
     public interface IQuestionRepository
     {
         Task<IEnumerable<Question>> GetByQuizIdAsync(int quizId);
-        Task<Question> GetByIdAsync(int id);
+        Task<Question?> GetByIdAsync(int id);
         Task<Question> CreateAsync(Question question);
         Task<Question> UpdateAsync(Question question);
         Task<bool> DeleteAsync(int id);

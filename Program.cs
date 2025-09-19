@@ -5,11 +5,11 @@ using Microsoft.OpenApi.Models;
 using QuizApp.Api.Data;
 using QuizApp.Api.Helpers;
 using QuizApp.Api.Middleware;
-using QuizApp.Api.Repositories;
 using QuizApp.Api.Repositories.Implementations;
 using QuizApp.Api.Repositories.Interfaces;
 using QuizApp.Api.Services;
 using System.Text;
+//using QuizApp.Api.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,7 +59,7 @@ builder.Services.AddScoped<IResultRepository, ResultRepository>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<QuizService>();
 builder.Services.AddScoped<ResultService>();
-builder.Services.AddScoped<LeaderboardService>(); // NEW: Added LeaderboardService
+builder.Services.AddScoped<LeaderboardService>();
 
 // Register helpers
 builder.Services.AddScoped<JwtHelper>();

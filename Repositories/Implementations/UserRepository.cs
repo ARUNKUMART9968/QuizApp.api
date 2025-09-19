@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QuizApp.Api.Data;
 using QuizApp.Api.Models;
+using QuizApp.Api.Repositories.Interfaces;
 
 namespace QuizApp.Api.Repositories.Implementations
 {
@@ -13,12 +14,12 @@ namespace QuizApp.Api.Repositories.Implementations
             _context = context;
         }
 
-        public async Task<User> GetByIdAsync(int id)
+        public async Task<User?> GetByIdAsync(int id)
         {
             return await _context.Users.FindAsync(id);
         }
 
-        public async Task<User> GetByEmailAsync(string email)
+        public async Task<User?> GetByEmailAsync(string email)
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }

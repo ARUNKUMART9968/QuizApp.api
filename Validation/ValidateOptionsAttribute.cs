@@ -4,7 +4,7 @@ namespace QuizApp.Api.Validation
 {
     public class ValidateOptionsAttribute : ValidationAttribute
     {
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
             if (validationContext.ObjectInstance is DTOs.CreateQuestionDto dto)
             {

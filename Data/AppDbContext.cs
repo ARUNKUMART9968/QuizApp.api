@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QuizApp.Api.Models;
+using System.Collections.Generic;
+using System.Reflection.Emit;
 
 namespace QuizApp.Api.Data
 {
