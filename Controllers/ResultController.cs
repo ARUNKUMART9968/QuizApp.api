@@ -71,7 +71,14 @@ namespace QuizApp.Api.Controllers
         public async Task<ActionResult<ApiResponse<bool>>> CheckQuizAttempt(int quizId)
         {
             var userId = GetCurrentUserId();
+
+            // Add logging to debug
+            Console.WriteLine($"Checking attempt for User: {userId}, Quiz: {quizId}");
+
             var hasAttempted = await _resultService.HasUserAttemptedQuizAsync(userId, quizId);
+
+            Console.WriteLine($"Has attempted result: {hasAttempted}");
+
             return Ok(ApiResponse<bool>.SuccessResponse(hasAttempted));
         }
 
@@ -79,5 +86,6 @@ namespace QuizApp.Api.Controllers
         {
             return int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
         }
+
     }
 }

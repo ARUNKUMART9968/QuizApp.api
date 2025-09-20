@@ -9,7 +9,7 @@ using QuizApp.Api.Repositories.Implementations;
 using QuizApp.Api.Repositories.Interfaces;
 using QuizApp.Api.Services;
 using System.Text;
-//using QuizApp.Api.Repositories.Interfaces;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -64,8 +64,14 @@ builder.Services.AddScoped<LeaderboardService>();
 // Register helpers
 builder.Services.AddScoped<JwtHelper>();
 
-// Add controllers
-builder.Services.AddControllers();
+// Configure controllers with JSON options - This is the key fix
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+        options.JsonSerializerOptions.WriteIndented = true;
+    });
 
 // Add Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
@@ -118,6 +124,9 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Quiz Application API V1");
         c.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
     });
+
+    // Add development exception page
+    app.UseDeveloperExceptionPage();
 }
 
 // Use custom exception middleware
@@ -137,11 +146,19 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-    // Ensure database is created
-    context.Database.EnsureCreated();
+    try
+    {
+        // Ensure database is created
+        context.Database.EnsureCreated();
 
-    // Seed initial data
-    await SeedDataService.SeedAsync(context);
+        // Seed initial data
+        await SeedDataService.SeedAsync(context);
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while seeding the database.");
+    }
 }
 
 app.Run();

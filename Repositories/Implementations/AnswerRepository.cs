@@ -38,7 +38,13 @@ namespace QuizApp.Api.Repositories.Implementations
 
         public async Task<bool> HasUserAttemptedQuizAsync(int userId, int quizId)
         {
-            return await _context.Answers.AnyAsync(a => a.UserId == userId && a.QuizId == quizId);
+            Console.WriteLine($"Checking answers table for User: {userId}, Quiz: {quizId}");
+
+            var result = await _context.Answers.AnyAsync(a => a.UserId == userId && a.QuizId == quizId);
+
+            Console.WriteLine($"Found answers: {result}");
+
+            return result;
         }
     }
 }
