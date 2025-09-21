@@ -2,7 +2,6 @@
 using QuizApp.Api.Data;
 using QuizApp.Api.DTOs;
 using QuizApp.Api.Models;
-using QuizApp.Api.Repositories.Interfaces;
 
 namespace QuizApp.Api.Services
 {
@@ -15,22 +14,27 @@ namespace QuizApp.Api.Services
             _context = context;
         }
 
+        // Quiz-specific leaderboard
         public async Task<QuizLeaderboardDto> GetQuizLeaderboardAsync(int quizId, int topCount = 10)
         {
             var quiz = await _context.Quizzes
+                .AsNoTracking()
                 .FirstOrDefaultAsync(q => q.QuizId == quizId);
 
             if (quiz == null)
                 throw new KeyNotFoundException("Quiz not found");
 
+            // Fetch all results for this quiz
             var results = await _context.Results
-                .Include(r => r.User)
+                .AsNoTracking()
                 .Where(r => r.QuizId == quizId)
+                .Include(r => r.User)
                 .OrderByDescending(r => r.Score)
                 .ThenBy(r => r.TimeTaken)
                 .ThenBy(r => r.SubmittedAt)
                 .ToListAsync();
 
+            // Assign ranks in-memory
             var leaderboardEntries = results
                 .Select((result, index) => new LeaderboardEntryDto
                 {
@@ -61,17 +65,18 @@ namespace QuizApp.Api.Services
             };
         }
 
+        // Global leaderboard
         public async Task<GlobalLeaderboardDto> GetGlobalLeaderboardAsync(int topCount = 10)
         {
             var studentPerformances = await _context.Results
-                .Include(r => r.User)
+                .AsNoTracking()
                 .Where(r => r.User.Role == "Student")
-                .GroupBy(r => r.UserId)
+                .GroupBy(r => new { r.UserId, r.User.Name, r.User.Email })
                 .Select(g => new StudentPerformanceDto
                 {
-                    UserId = g.Key,
-                    UserName = g.First().User.Name,
-                    Email = g.First().User.Email,
+                    UserId = g.Key.UserId,
+                    UserName = g.Key.Name,
+                    Email = g.Key.Email,
                     QuizzesAttempted = g.Count(),
                     AverageScore = g.Average(r => r.Score),
                     BestScore = g.Max(r => r.Score),
@@ -83,7 +88,7 @@ namespace QuizApp.Api.Services
                 .ThenByDescending(s => s.BestScore)
                 .ToListAsync();
 
-            // Assign ranks and performance levels
+            // Assign global ranks
             for (int i = 0; i < studentPerformances.Count; i++)
             {
                 studentPerformances[i].GlobalRank = i + 1;
@@ -103,6 +108,7 @@ namespace QuizApp.Api.Services
             };
         }
 
+        // Top 3 podium for a quiz
         public async Task<PodiumDto> GetQuizPodiumAsync(int quizId)
         {
             var leaderboard = await GetQuizLeaderboardAsync(quizId, 10);
@@ -116,32 +122,29 @@ namespace QuizApp.Api.Services
             };
         }
 
+        // User stats & recent quizzes
         public async Task<UserStatsDto> GetUserStatsAsync(int userId)
         {
-            var user = await _context.Users.FindAsync(userId);
+            var user = await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+
             if (user == null)
                 throw new KeyNotFoundException("User not found");
 
             var userResults = await _context.Results
+                .AsNoTracking()
                 .Include(r => r.Quiz)
                 .Where(r => r.UserId == userId)
                 .OrderByDescending(r => r.SubmittedAt)
                 .ToListAsync();
 
             if (!userResults.Any())
-            {
-                return new UserStatsDto
-                {
-                    UserId = userId,
-                    UserName = user.Name,
-                    TotalQuizzesAttempted = 0
-                };
-            }
+                return new UserStatsDto { UserId = userId, UserName = user.Name, TotalQuizzesAttempted = 0 };
 
             var recentQuizzes = new List<QuizPerformanceDto>();
             foreach (var result in userResults.Take(5))
             {
-                // Get rank in this quiz
                 var rank = await GetUserRankInQuizAsync(userId, result.QuizId);
 
                 recentQuizzes.Add(new QuizPerformanceDto
@@ -180,23 +183,29 @@ namespace QuizApp.Api.Services
             };
         }
 
+        // Rank a user in a quiz
         public async Task<int> GetUserRankInQuizAsync(int userId, int quizId)
         {
             var userResult = await _context.Results
+                .AsNoTracking()
                 .FirstOrDefaultAsync(r => r.UserId == userId && r.QuizId == quizId);
 
-            if (userResult == null)
-                return 0;
+            if (userResult == null) return 0;
 
+            // Count how many results are better than this user
             var betterResults = await _context.Results
-                .CountAsync(r => r.QuizId == quizId &&
-                    (r.Score > userResult.Score ||
-                     (r.Score == userResult.Score && r.TimeTaken < userResult.TimeTaken) ||
-                     (r.Score == userResult.Score && r.TimeTaken == userResult.TimeTaken && r.SubmittedAt < userResult.SubmittedAt)));
+                .AsNoTracking()
+                .Where(r => r.QuizId == quizId)
+                .CountAsync(r =>
+                    r.Score > userResult.Score ||
+                    (r.Score == userResult.Score && r.TimeTaken < userResult.TimeTaken) ||
+                    (r.Score == userResult.Score && r.TimeTaken == userResult.TimeTaken && r.SubmittedAt < userResult.SubmittedAt)
+                );
 
             return betterResults + 1;
         }
 
+        // Performance level mapping
         private static string GetPerformanceLevel(decimal score)
         {
             return score switch

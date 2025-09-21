@@ -70,22 +70,42 @@ namespace QuizApp.Api.Controllers
         [HttpGet("quiz/{quizId}/check-attempt")]
         public async Task<ActionResult<ApiResponse<bool>>> CheckQuizAttempt(int quizId)
         {
-            var userId = GetCurrentUserId();
+            try
+            {
+                var userId = GetCurrentUserId();
 
-            // Add logging to debug
-            Console.WriteLine($"Checking attempt for User: {userId}, Quiz: {quizId}");
+                // Add detailed logging to debug the issue
+                Console.WriteLine($"[DEBUG] Checking attempt for User: {userId}, Quiz: {quizId}");
 
-            var hasAttempted = await _resultService.HasUserAttemptedQuizAsync(userId, quizId);
+                var hasAttempted = await _resultService.HasUserAttemptedQuizAsync(userId, quizId);
 
-            Console.WriteLine($"Has attempted result: {hasAttempted}");
+                // IMPORTANT: Ensure we return a proper boolean value
+                Console.WriteLine($"[DEBUG] Has attempted result (type: {hasAttempted.GetType().Name}): {hasAttempted}");
 
-            return Ok(ApiResponse<bool>.SuccessResponse(hasAttempted));
+                // Force boolean conversion to ensure proper response
+                bool result = hasAttempted == true;
+
+                Console.WriteLine($"[DEBUG] Final boolean result: {result}");
+
+                return Ok(ApiResponse<bool>.SuccessResponse(result, $"Attempt check completed. Has attempted: {result}"));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Exception in CheckQuizAttempt: {ex.Message}");
+
+                // Return false on error to allow quiz attempt
+                return Ok(ApiResponse<bool>.SuccessResponse(false, "Check failed, allowing attempt"));
+            }
         }
 
         private int GetCurrentUserId()
         {
-            return int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                throw new UnauthorizedAccessException("Invalid user ID in token");
+            }
+            return userId;
         }
-
     }
 }

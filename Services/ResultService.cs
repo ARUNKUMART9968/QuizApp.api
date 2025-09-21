@@ -1,4 +1,4 @@
-﻿// Services/ResultService.cs
+﻿// Services/ResultService.cs - Fixed Version
 using QuizApp.Api.DTOs;
 using QuizApp.Api.Models;
 using QuizApp.Api.Repositories;
@@ -35,10 +35,11 @@ namespace QuizApp.Api.Services
                 throw new KeyNotFoundException("Quiz not found");
             }
 
-            // Check if user has already attempted this quiz
-            if (await _answerRepository.HasUserAttemptedQuizAsync(userId, quizId))
+            // FIXED: Check Results table instead of Answers table for completed attempts
+            var existingResult = await _resultRepository.GetByUserAndQuizAsync(userId, quizId);
+            if (existingResult != null)
             {
-                throw new ArgumentException("You have already attempted this quiz");
+                throw new ArgumentException("You have already completed this quiz");
             }
 
             // Get all questions for the quiz
@@ -180,9 +181,17 @@ namespace QuizApp.Api.Services
             return results.Select(MapToResultDto);
         }
 
+        // FIXED: Check Results table instead of Answers table
         public async Task<bool> HasUserAttemptedQuizAsync(int userId, int quizId)
         {
-            return await _answerRepository.HasUserAttemptedQuizAsync(userId, quizId);
+            Console.WriteLine($"Checking Results table for User: {userId}, Quiz: {quizId}");
+
+            var result = await _resultRepository.GetByUserAndQuizAsync(userId, quizId);
+            var hasAttempted = result != null;
+
+            Console.WriteLine($"Found result: {hasAttempted}");
+
+            return hasAttempted;
         }
 
         private static ResultDto MapToResultDto(Result result)

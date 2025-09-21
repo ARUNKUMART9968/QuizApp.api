@@ -36,15 +36,16 @@ namespace QuizApp.Api.Repositories.Implementations
             return answers;
         }
 
+        // REMOVED: This method is no longer used since we check Results table instead
+        // The HasUserAttemptedQuizAsync method has been moved to ResultService
         public async Task<bool> HasUserAttemptedQuizAsync(int userId, int quizId)
         {
-            Console.WriteLine($"Checking answers table for User: {userId}, Quiz: {quizId}");
+            // This method is deprecated - use ResultService.HasUserAttemptedQuizAsync instead
+            // Keeping for interface compatibility but logging warning
+            Console.WriteLine("WARNING: AnswerRepository.HasUserAttemptedQuizAsync is deprecated. Use ResultService.HasUserAttemptedQuizAsync instead.");
 
-            var result = await _context.Answers.AnyAsync(a => a.UserId == userId && a.QuizId == quizId);
-
-            Console.WriteLine($"Found answers: {result}");
-
-            return result;
+            // Return false to not block students, let ResultService handle the check
+            return false;
         }
     }
 }

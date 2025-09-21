@@ -2,7 +2,7 @@
 using QuizApp.Api.Data;
 using QuizApp.Api.Models;
 using QuizApp.Api.Repositories.Interfaces;
-using 
+ 
 
 namespace QuizApp.Api.Repositories.Implementations
 {
